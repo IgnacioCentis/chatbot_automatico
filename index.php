@@ -22,6 +22,7 @@
     <div class="controles">
         <button id="iniciar">Iniciar</button>
         <button id="detener">Detener</button>
+        <button id="reiniciar">Reiniciar</button>
     </div>
 </div>
 <script src="assets/script.js"></script>

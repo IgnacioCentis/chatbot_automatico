@@ -1,7 +1,7 @@
 <?php
 require 'db.php';
 $convo_id = "web_convo";
-$stmt = $conn->prepare("SELECT emisor, mensaje FROM ia_conversaciones WHERE conversacion_id = ? ORDER BY id ASC");
+$stmt = $conn->prepare("SELECT emisor, mensaje FROM ia_conversaciones WHERE conversacion_id = ? AND activo = 1 ORDER BY id ASC");
 $stmt->execute([$convo_id]);
 $mensajes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

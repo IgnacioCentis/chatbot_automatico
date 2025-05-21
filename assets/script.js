@@ -26,4 +26,10 @@ $(document).ready(function () {
         clearInterval(intervalo);
         intervalo = null;
     });
+
+    $("#reiniciar").click(function () {
+        $.get("reiniciar.php", function () {
+            cargarChat();
+        });
+    });
 });

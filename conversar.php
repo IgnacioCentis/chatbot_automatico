@@ -19,7 +19,13 @@ function enviarAOpenAI($historial) {
     $res = curl_exec($ch);
     curl_close($ch);
     $data = json_decode($res, true);
-    return $data['choices'][0]['message']['content'] ?? "[ERROR]";
+
+    if (isset($data['choices'][0]['message']['content'])) {
+        return trim($data['choices'][0]['message']['content']);
+    } else {//registro la respuesta del error
+        file_put_contents("error_respuesta.json", json_encode($data));
+        return "[ERROR]";
+    }
 }
 
 $convo_id = "web_convo"; // única conversación para demo
@@ -32,8 +38,8 @@ $historialA = [["role" => "system", "content" => "Sos un profesor de Matemática
 $historialB = [["role" => "system", "content" => "Sos un alumno curioso que quiere aprender sobre Matemática I."]];
 
 foreach ($mensajes as $m) {
-    $historialA[] = ["role" => $m['emisor'] == 'profesor' ? 'assistant' : 'user', "content" => $m['mensaje']];
-    $historialB[] = ["role" => $m['emisor'] == 'alumno' ? 'assistant' : 'user', "content" => $m['mensaje']];
+    $historialA[] = ["role" => $m['emisor'] === 'profesor' ? 'assistant' : 'user', "content" => $m['mensaje']];
+    $historialB[] = ["role" => $m['emisor'] === 'alumno' ? 'assistant' : 'user', "content" => $m['mensaje']];
 }
 
 $turno = count($mensajes) % 2 === 0 ? 'profesor' : 'alumno';
@@ -41,6 +47,8 @@ $historial = $turno === 'profesor' ? $historialA : $historialB;
 
 $respuesta = enviarAOpenAI($historial);
 
-$stmt = $conn->prepare("INSERT INTO ia_conversaciones (conversacion_id, emisor, mensaje) VALUES (?, ?, ?)");
-$stmt->execute([$convo_id, $turno, $respuesta]);
+if ($respuesta !== "[ERROR]") {
+    $stmt = $conn->prepare("INSERT INTO ia_conversaciones (conversacion_id, emisor, mensaje) VALUES (?, ?, ?)");
+    $stmt->execute([$convo_id, $turno, $respuesta]);
+}
 ?>
